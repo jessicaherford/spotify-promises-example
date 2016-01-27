@@ -1,17 +1,18 @@
 var request = require('request');
 
+
 /**
- * This is a simple (not completely robust) method to use 
- * promises with the request.get method.  
+ * This is a simple (not completely robust) method to use
+ * promises with the request.get method.
  */
 function promisifyGet(url) {
 	// NOTICE WE ARE RETURNING A PROMISE.
 	return new Promise(function(resolve, reject) {
-		
+
 		// Make a request to url
 		request.get(url, function(error, response, body){
 			// Just like normal, we used a callback to recieve
-			// data from request, 
+			// data from request,
 			if(error) {
 				// Reject this promise, which triggers "Catch" or
 				// the second function in a .then()
@@ -47,8 +48,8 @@ function prettyPrintAlbums(albumsData) {
 var artist = process.argv[2] || "Sound Providers";
 var spotifyPromise = promisifyGet('https://api.spotify.com/v1/search?type=artist&q=' + artist);
 
-// Normally, we would have to handle this in a callback function. 
-// And this looks similar, we are still passing in a function to 
+// Normally, we would have to handle this in a callback function.
+// And this looks similar, we are still passing in a function to
 // .then()
 spotifyPromise.then(function(searchResponse){
 	// searchResponse came from line 24, when the promise was resolved
@@ -86,7 +87,7 @@ spotifyPromise.then(function(searchResponse){
 
 	// So, now we have a bunch of albums, and we want to fetch
 	// tracks and release dates for each of these!
-	// Lets use the all powerful Promise.all() to return a 
+	// Lets use the all powerful Promise.all() to return a
 	// promise, which will not be resolved until ALL the individual
 	// promises are resolved.
 	var albumPromises = [];
@@ -102,7 +103,7 @@ spotifyPromise.then(function(searchResponse){
 	return Promise.all(albumPromises);
 })
 .then(function(resolvedAlbums){
-	// The data from resolved albums is the whole HTTP response, so 
+	// The data from resolved albums is the whole HTTP response, so
 	// once again I'm going to map the data to the subset I want.
 	var expandedAlbumData = resolvedAlbums.map(function(albumResponse) {
 		var obj = JSON.parse(albumResponse.body);
@@ -113,11 +114,10 @@ spotifyPromise.then(function(searchResponse){
 		}
 	});
 
-	// Now, expandedAlbumData is all the information we 
-	// really care about. Lets print it. 
+	// Now, expandedAlbumData is all the information we
+	// really care about. Lets print it.
 	prettyPrintAlbums(expandedAlbumData);
 })
 .catch(function(error) {
 	console.log(error);
 });
-
